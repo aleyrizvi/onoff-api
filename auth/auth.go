@@ -8,28 +8,37 @@ import (
    In future, this code is going to be replaced by auth package.
 */
 
-type Auth struct{}
-
-func New() *Auth {
-	return &Auth{}
+type Auth struct {
+	Username string
+	Password string
 }
 
-func (a *Auth) BasicAuth(username string, password string) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			u, p, ok := c.Request().BasicAuth()
+func New(opts ...Option) *Auth {
+	auth := &Auth{
+		Username: "admin",
+		Password: "password",
+	}
 
-			// in case of Authorization header is invalid
-			if !ok {
-				return echo.ErrUnauthorized
-			}
+	for _, opt := range opts {
+		opt(auth)
+	}
+	return auth
+}
 
-			// verify credentials
-			if username != u || password != p {
-				return echo.ErrUnauthorized
-			}
+func (a *Auth) BasicAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		u, p, ok := c.Request().BasicAuth()
 
-			return nil
+		// in case of Authorization header is invalid
+		if !ok {
+			return echo.ErrUnauthorized
 		}
+
+		// verify credentials
+		if u != a.Username || p != a.Password {
+			return echo.ErrUnauthorized
+		}
+
+		return nil
 	}
 }

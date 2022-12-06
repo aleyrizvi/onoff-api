@@ -24,7 +24,10 @@ func initRouter(port int) {
 	anagramService := anagram.New()
 
 	// custom middlewares
-	authenticator := auth.New()
+	authenticator := auth.New(
+		auth.WithUsername("admin"),
+		auth.WithPassword("password"),
+	)
 
 	// generic middlewares
 	e.Pre(middleware.RemoveTrailingSlash())
@@ -35,7 +38,7 @@ func initRouter(port int) {
 		}),
 		//middleware.CORSWithConfig(middleware.DefaultCORSConfig),
 		middleware.BodyLimit("2M"),
-		authenticator.BasicAuth("admin", "password"),
+		authenticator.BasicAuth,
 	)
 
 	// handlers
