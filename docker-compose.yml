@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  api:
+    build:
+      context: .
+      target: base
+    working_dir: /server
+    volumes:
+      - .:/server
+    expose:
+      - "9000"
+    command: "/go/bin/air -c .air.conf"
+    ports:
+      - "9000:9000"
